@@ -4,16 +4,16 @@ import './index.css';
 import App from './App';
 
 export const themes = {
-  light: "i am white",
-  dark: "i am dark"
+  red: "red",
+  green: "green"
 };
 
-export const ThemeContext = React.createContext(themes.dark)
+export const ThemeContext = React.createContext(themes.green)
 
 
 ReactDOM.render(
   <React.StrictMode>
-    <ThemeContext.Provider value={themes.light}>
+    <ThemeContext.Provider value={themes.red}>
     <App />
     </ThemeContext.Provider>
   </React.StrictMode>,

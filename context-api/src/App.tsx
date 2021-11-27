@@ -1,66 +1,21 @@
-import React, {useState, useContext, memo}from 'react';
+import React, {useState, useContext, useReducer}from 'react';
 import './App.css';
 import Button from './components/button.component';
-import {ThemeContext} from './index'
+import Square from './components/squareComponent';
+import Board from './components/gameComponent';
+import {ThemeContext, themes} from './context/theme-context'
+import ThemeToggleComponent from './components/themeToggleComponent'
 
 type Next = 'O' | 'X' | null
 export type Squares = Next[]
 
-interface BoardProps {
-  value: Next;
-  onClick: () => void
-}
-
-const Square = memo(({ value, onClick }: BoardProps) => {
-  const handleClick = () => {
-    onClick();
-  };
-  return (
-    <button onClick={handleClick} className='square'>
-      {value}
-    </button>
-  );
-});
-// class Board extends React.Component {
-
-interface GameProps {
-  child: (i : number) => JSX.Element
-}
-
-const Board = ({ child}: GameProps) => {
-  // const renderSquare = (i : number) => {
-  //   const value = squares[i];
-  //   return child(value, () => onClick(i))
-  //   return <Square value={value} onClick={() => onClick(i)} />;
-  // };
-
-  const theme = useContext(ThemeContext) // consumer
-  return (
-    <div>
-      <div className='board-row'>
-        {child(0)}
-        {child(1)}
-        {child(2)}
-      </div>
-      <div className='board-row'>
-        {child(3)}
-        {child(4)}
-        {child(5)}
-      </div>
-      <div className='board-row'>
-        {child(6)}
-        {child(7)}
-        {child(8)}
-      </div>
-      <p>{theme}</p>
-    </div>
-  );
-};
 type S = {
   squares: Squares
 }
 type history = S[]
+
 function App() {
+  const [theme, setTheme] = useState(themes.red)
   const [history, setHistory] = useState<history>([
     { squares: new Array(9).fill(null) },
   ]);
@@ -68,6 +23,7 @@ function App() {
   const [stepNumber, setStepNumber] = useState<number>(0);
   const historyTracker = history.slice(0, stepNumber + 1);
   const current = historyTracker[stepNumber];
+
 
   const handleClick = (i : number) => {
     const newSquares = [...current.squares];
@@ -90,6 +46,20 @@ function App() {
     return <Square value={value} onClick={() => handleClick(i)} />
   }
 
+  // This is a way to chage the state of the context value
+  // by directly change the value of the context provider
+  function Toolbar(props : any) {
+    return (
+      <button onClick={props.changeTheme}>
+        changeBorder
+      </button>
+    );
+  }
+  const ToggleTheme = () => {
+    const newTheme = theme === themes.red? themes.green: themes.red
+    setTheme(newTheme)
+  }
+
   const winner = isWinner(current.squares);
   let status;
   if (winner) {
@@ -99,9 +69,13 @@ function App() {
   }
   return (
     <div className='game'>
+      <ThemeContext.Provider value={{theme:theme, toggleTheme:ToggleTheme}}>
       <div className='game-board'>
+       
         <Board child={renderSquare}/>
+        
       </div>
+      
       <div className='game-info'>
         <div>{status}</div>
         <ol>
@@ -115,13 +89,50 @@ function App() {
           ))}
         </ol>
       </div>
-      
+      <Toolbar changeTheme={ToggleTheme}/>
+      {/* This one changes the state of the context in the nested child */}
+      <ThemeToggleComponent />
+      </ThemeContext.Provider>
+      <Counter />
     </div>
     
   );
 }
 
 export default App;
+
+function init(initialCount : any) {
+  return {count: 0};
+}
+
+function reducer(state: any, action: any) {
+  switch (action.type) {
+    case 'increment':
+      return {count: state.count + 1};
+    case 'decrement':
+      return {count: state.count - 1};
+    case 'reset':
+      return init(action.payload);
+    default:
+      throw new Error();
+  }
+}
+
+function Counter({initialCount}: any) {
+  const [state, dispatch] = useReducer(reducer, initialCount, init);
+  return (
+    <>
+      Count: {state.count}
+      <button
+        onClick={() => dispatch({type: 'reset', payload: initialCount})}>
+        Reset
+      </button>
+      <button onClick={() => dispatch({type: 'decrement'})}>-</button>
+      <button onClick={() => dispatch({type: 'increment'})}>+</button>
+    </>
+  );
+}
+
 
 
 

@@ -14,7 +14,7 @@ const Button = ({ move, onClick }: GameButtonProps) => {
 
   return (
     <li>
-      <button onClick={handleClick}>{desc}</button>
+      <button onClick={handleClick} >{desc}</button>
     </li>
   );
 };
