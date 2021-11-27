@@ -2,20 +2,15 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
+import { InputValueProvider } from './context/InputValueContext';
 
-export const themes = {
-  red: "red",
-  green: "green"
-};
-
-export const ThemeContext = React.createContext(themes.green)
 
 
 ReactDOM.render(
   <React.StrictMode>
-    <ThemeContext.Provider value={themes.red}>
-    <App />
-    </ThemeContext.Provider>
+    <InputValueProvider>
+      <App />
+    </InputValueProvider>
   </React.StrictMode>,
   document.getElementById('root')
 );

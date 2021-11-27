@@ -1,10 +1,11 @@
-import React, {useState, useContext, useReducer}from 'react';
+import React, {useState, useReducer, useContext}from 'react';
 import './App.css';
 import Button from './components/button.component';
 import Square from './components/squareComponent';
 import Board from './components/gameComponent';
 import {ThemeContext, themes} from './context/theme-context'
 import ThemeToggleComponent from './components/themeToggleComponent'
+import { InputValueContext } from './context/InputValueContext';
 
 type Next = 'O' | 'X' | null
 export type Squares = Next[]
@@ -23,6 +24,7 @@ function App() {
   const [stepNumber, setStepNumber] = useState<number>(0);
   const historyTracker = history.slice(0, stepNumber + 1);
   const current = historyTracker[stepNumber];
+  const {state, dispatch} = useContext(InputValueContext);
 
 
   const handleClick = (i : number) => {
@@ -93,7 +95,11 @@ function App() {
       {/* This one changes the state of the context in the nested child */}
       <ThemeToggleComponent />
       </ThemeContext.Provider>
-      <Counter />
+      <Counter initialCount={2}/>
+      <div>
+        {state.inputValue}
+        <button onClick={()=> dispatch({type:'SET_INPUT_VALUE_TO_100'})}>set the value to 100</button>
+      </div>
     </div>
     
   );
@@ -102,8 +108,11 @@ function App() {
 export default App;
 
 function init(initialCount : any) {
-  return {count: 0};
+  return {count: initialCount};
 }
+
+// useReducer is usually preferable to useState when you have complex state logic 
+// that involves multiple sub-values or when the next state depends on the previous one.
 
 function reducer(state: any, action: any) {
   switch (action.type) {
